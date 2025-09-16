@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Add mammoth.js for .docx processing -->
+  <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+  <title>Writing Analyzer</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    textarea { width: 100%; height: 200px; }
+  </style>
+</head>
+<body>
+  <!-- Google API client library -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://apis.google.com/js/api.js"></script>
+  <h3>Google Authentication</h3>
+  <button id="googleSignIn" onclick="handleGoogleSignIn()">Sign in with Google</button>
+  <div id="authStatus"></div>
+
+  <h2>Writing Analyzer</h2>
+  <textarea id="inputText" placeholder="Paste your writing here..."></textarea><br><br>
+  <button onclick="analyze()">Analyze</button>
+
+  <h3>Or upload a .docx file</h3>
+  <input type="file" id="docxInput" accept=".docx" />
+  <button onclick="handleDocxUpload()">Upload .docx</button>
+  <br><br>
+  <h3>Or enter a Google Doc link</h3>
+  <input type="text" id="gdocUrl" placeholder="Paste Google Doc URL here" size="50" />
+  <button onclick="handleGoogleDoc()">Submit Google Doc</button>
+  <br><br>
+  <div id="output"></div>
+
+  <h3>Results</h3>
+  <p id="grade"></p>
+  <p id="words"></p>
+
+  <script>
+    // Google API config
+    const CLIENT_ID = '709067795013-ij09egf2e0a12d1467mvhi5a35fbdi8i.apps.googleusercontent.com'; 
+    const API_KEY = '';
+    const DISCOVERY_DOC = 'https://docs.googleapis.com/$discovery/rest?version=v1';
+    const SCOPES = 'https://www.googleapis.com/auth/documents.readonly';
+
+    let tokenClient;
+    let gapiInited = false;
+    let gisInited = false;
+
+    function gapiLoaded() {
+      gapi.load('client', initializeGapiClient);
+    }
+
+    async function initializeGapiClient() {
+      await gapi.client.init({
+        apiKey: API_KEY,
+        discoveryDocs: [DISCOVERY_DOC],
+      });
+      gapiInited = true;
+      maybeEnableButtons();
+    }
+
+    function gisLoaded() {
+      tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: CLIENT_ID,
+        scope: SCOPES,
+        callback: '',
+      });
+      gisInited = true;
+      maybeEnableButtons();
+    }
+
+    function maybeEnableButtons() {
+      if (gapiInited && gisInited) {
+        document.getElementById('googleSignIn').disabled = false;
+      }
+    }
+
+    window.onload = function() {
+      document.getElementById('googleSignIn').disabled = true;
+      // Load Google API libraries
+      window.gapiLoaded = gapiLoaded;
+      window.gisLoaded = gisLoaded;
+      // Load gapi and gis
+      const gapiScript = document.createElement('script');
+      gapiScript.src = 'https://apis.google.com/js/api.js?onload=gapiLoaded';
+      document.body.appendChild(gapiScript);
+      const gisScript = document.createElement('script');
+      gisScript.src = 'https://accounts.google.com/gsi/client';
+      gisScript.onload = gisLoaded;
+      document.body.appendChild(gisScript);
+    };
+
+    function handleGoogleSignIn() {
+      tokenClient.callback = async (resp) => {
+        if (resp.error !== undefined) {
+          throw resp;
+        }
+        document.getElementById('authStatus').innerText = 'Signed in!';
+        window.gapiAccessToken = resp.access_token;
+      };
+      tokenClient.requestAccessToken({prompt: 'consent'});
+    }
+    function analyze() {
+      const text = document.getElementById("inputText").value;
+
+      // Basic word count
+      const words = text.toLowerCase().match(/\b[a-z']+\b/g) || [];
+      const freq = {};
+      words.forEach(w => freq[w] = (freq[w] || 0) + 1);
+
+      // Sort by frequency
+      const topWords = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 10);
+
+      // Simple grade level (Flesch-Kincaid simplified)
+      const sentences = text.split(/[.!?]/).filter(s => s.trim().length > 0).length;
+      const syllables = text.split(/[aeiouy]+/i).length - 1; // crude estimate
+      const grade = 0.39 * (words.length / sentences) + 11.8 * (syllables / words.length) - 15.59;
+
+      document.getElementById("grade").innerText = `Approx. Grade Level: ${grade.toFixed(1)}`;
+      document.getElementById("words").innerText = "Most used words: " + topWords.map(w => `${w[0]} (${w[1]})`).join(", ");
+    }
+
+    function handleDocxUpload() {
+      const input = document.getElementById('docxInput');
+      const file = input.files[0];
+      if (!file) {
+        alert('Please select a .docx file.');
+        return;
+      }
+      // Read file as ArrayBuffer and process with mammoth.js
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        mammoth.extractRawText({arrayBuffer: e.target.result})
+          .then(function(result) {
+            document.getElementById('output').innerText = 'File loaded: ' + file.name;
+            document.getElementById('inputText').value = result.value;
+          })
+          .catch(function(err) {
+            document.getElementById('output').innerText = 'Error processing .docx: ' + err.message;
+          });
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function handleGoogleDoc() {
+      const url = document.getElementById('gdocUrl').value.trim();
+      if (!url) {
+        alert('Please enter a Google Doc URL.');
+        return;
+      }
+      // Extract the document ID from the URL
+      const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+      const docId = match ? match[1] : null;
+      if (!docId) {
+        document.getElementById('output').innerText = 'Invalid Google Doc URL.';
+        return;
+      }
+      // Check if user is authenticated
+      if (!window.gapiAccessToken) {
+        document.getElementById('output').innerText = 'Please sign in with Google first.';
+        return;
+      }
+      document.getElementById('output').innerText = 'Fetching Google Doc content...';
+      // Fetch the document content using Google Docs API
+      gapi.client.docs.documents.get({documentId: docId}).then(function(response) {
+        // Extract plain text from the document body
+        const body = response.result.body;
+        let text = '';
+        if (body && body.content) {
+          body.content.forEach(element => {
+            if (element.paragraph && element.paragraph.elements) {
+              element.paragraph.elements.forEach(e => {
+                if (e.textRun && e.textRun.content) {
+                  text += e.textRun.content;
+                }
+              });
+            }
+          });
+        }
+        document.getElementById('output').innerText = 'Google Doc loaded!';
+        document.getElementById('inputText').value = text;
+      }, function(error) {
+        document.getElementById('output').innerText = 'Error fetching Google Doc: ' + error.result.error.message;
+      });
+    }
+  </script>
+</body>
+</html>
