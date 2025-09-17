@@ -1,8 +1,101 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    #resultsSection { display: none; }
+    body {
+      background: #f4f7fa;
+      font-family: 'Montserrat', Arial, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      color: #222;
+    }
+    .main-card {
+      background: #fff;
+      max-width: 700px;
+      margin: 40px auto 32px auto;
+      padding: 36px 32px 32px 32px;
+      border-radius: 18px;
+      box-shadow: 0 4px 24px rgba(60,40,20,0.10), 0 1.5px 4px rgba(60,40,20,0.04);
+      border: 1px solid #e0e6ed;
+    }
+    h2, h3, h4 {
+      font-family: 'Montserrat', Arial, sans-serif;
+      color: #222;
+      margin-top: 0;
+      margin-bottom: 0.7em;
+    }
+    h2 {
+      font-size: 2em;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+    h3 {
+      font-size: 1.2em;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    textarea, input[type="text"] {
+      width: 100%;
+      font-size: 1.08em;
+      padding: 12px 14px;
+      border: 1px solid #b5c6d6;
+      border-radius: 8px;
+      background: #f8fafc;
+      margin-bottom: 18px;
+      font-family: 'Montserrat', Arial, sans-serif;
+      box-sizing: border-box;
+      transition: border 0.2s;
+    }
+    textarea:focus, input[type="text"]:focus {
+      border: 1.5px solid #444;
+      outline: none;
+      background: #fff;
+    }
+    button {
+      background: #ff7a00;
+      color: #fff;
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-size: 1em;
+      padding: 10px 22px;
+      border: none;
+      border-radius: 7px;
+      margin: 6px 0 18px 0;
+      box-shadow: 0 2px 8px rgba(60,40,20,0.07);
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    button:hover, button:focus {
+      background: #e55d00;
+      box-shadow: 0 4px 16px rgba(60,40,20,0.13);
+    }
+    #output, #authStatus {
+      color: #222;
+      font-size: 1em;
+      margin-bottom: 18px;
+    }
+    #resultsSection {
+      display: none;
+    }
+    .main-card ul {
+      padding-left: 1.2em;
+      margin-bottom: 1.2em;
+    }
+    .main-card li {
+      margin-bottom: 0.5em;
+    }
+    table {
+      background: #f8fafc;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th {
+      background: #f4f7fa;
+      color: #222;
+    }
+    td, th {
+      border: none;
+    }
   </style>
   <!-- Add mammoth.js for .docx processing -->
   <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
@@ -18,62 +111,64 @@
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://apis.google.com/js/api.js"></script>
 
-  <h2>Instructions</h2>
-  <p>Upload your manuscript using either a .docx file or GoogleDocs below.</p>
-  <ul>
-  <li>For GoogleDocs, you will need to sign in with your Google account and authorize access to your documents.</li>
-  <li>Once signed in, paste the link to your GoogleDoc in the field provided and click "Submit Google Doc."</li>
-  <li>For docx files, click "Upload .docx" after selecting your file.</li>
-  <li>Your text will appear in the text area above for analysis.</li>
-  <li>Click "Analyze" to see readability scores and top used words.</li>
-  </ul>
-  <p>Note: No data is stored or shared; all processing occurs in your browser.</p>
-
-  <h2>Writing Analyzer</h2>
-  <textarea id="inputText" placeholder="Paste your writing here..."></textarea><br><br>
-  <button onclick="analyze()">Analyze</button>
-
-  <h3>Or upload a .docx file</h3>
-  <input type="file" id="docxInput" accept=".docx" />
-  <button onclick="handleDocxUpload()">Upload .docx</button>
-  <br><br>
-  
-  <h3>Google Authentication</h3>
-  <button id="googleSignIn" onclick="handleGoogleSignIn()">Sign in with Google</button>
-  <div id="authStatus"></div>
-  
-  <h3>Or enter a Google Doc link</h3>
-  <input type="text" id="gdocUrl" placeholder="Paste Google Doc URL here" size="50" />
-  <button onclick="handleGoogleDoc()">Submit Google Doc</button>
-  <br><br>
-  <div id="output"></div>
-
-  <div id="resultsSection">
-    <h2>Results</h2>
-    <h3>Readability</h3>
-    <p id="grade"></p>
-    <h4>Flesch-Kincaid Grade Level</h4>
-    <p>Assesses the approximate reading grade level of a text, based on average sentence length and word complexity.</p>
-    <h4>Coleman-Liau Index</h4>
-    <p>An alternative formula that focuses on word length to assess grade level.</p>
-    <h4>Tips</h4>
-    <p>Aim for a grade level appropriate to your audience. For general audiences, a grade level of 7-8 is often recommended.</p>
-
-    <h3>Top Used Words</h3>
-    <p id="words"></p>
-    <h4>Tips</h4>
-    <p>Certain words will probably appear multiple times per page--especially articles and pronouns--but, pay attention if:</p>
+  <div class="main-card">
+    <h2>Instructions</h2>
+    <p>Upload your manuscript using either a .docx file or GoogleDocs below.</p>
     <ul>
-      <li>You see verbs such as 'is' and 'was' more than once a page because it suggests passive voice and weak verbs</li>
-      <li>You find words like 'just,' 'that,' 'still,' 'begin,' and 'start'--these are filler words to cull</li>
-      <li>You see verbs used repeatedly where you could employ synonyms</li>
+      <li>For GoogleDocs, you will need to sign in with your Google account and authorize access to your documents.</li>
+      <li>Once signed in, paste the link to your GoogleDoc in the field provided and click "Submit Google Doc."</li>
+      <li>For docx files, click "Upload .docx" after selecting your file.</li>
+      <li>Your text will appear in the text area above for analysis.</li>
+      <li>Click "Analyze" to see readability scores and top used words.</li>
     </ul>
-    <p>Consider using the 'Control F' function to highlight these words in your text to check if:</p>
-    <ul>
-      <li>Any word appears multiple times in a single sentence</li>
-      <li>A noun, adjective, or verb appears multiple times in a single paragraph or page</li>
-      <li>Can you rephrase sentences to avoid repeating the same word?</li>
-    </ul>
+    <p>Note: No data is stored or shared; all processing occurs in your browser.</p>
+
+    <h2>Writing Analyzer</h2>
+    <textarea id="inputText" placeholder="Paste your writing here..."></textarea><br><br>
+    <button onclick="analyze()">Analyze</button>
+
+    <h3>Or upload a .docx file</h3>
+    <input type="file" id="docxInput" accept=".docx" />
+    <button onclick="handleDocxUpload()">Upload .docx</button>
+    <br><br>
+
+    <h3>Google Authentication</h3>
+    <button id="googleSignIn" onclick="handleGoogleSignIn()">Sign in with Google</button>
+    <div id="authStatus"></div>
+
+    <h3>Or enter a Google Doc link</h3>
+    <input type="text" id="gdocUrl" placeholder="Paste Google Doc URL here" size="50" />
+    <button onclick="handleGoogleDoc()">Submit Google Doc</button>
+    <br><br>
+    <div id="output"></div>
+
+    <div id="resultsSection">
+      <h2>Results</h2>
+      <h3>Readability</h3>
+      <p id="grade"></p>
+      <h4>Flesch-Kincaid Grade Level</h4>
+      <p>Assesses the approximate reading grade level of a text, based on average sentence length and word complexity.</p>
+      <h4>Coleman-Liau Index</h4>
+      <p>An alternative formula that focuses on word length to assess grade level.</p>
+      <h4>Tips</h4>
+      <p>Aim for a grade level appropriate to your audience. For general audiences, a grade level of 7-8 is often recommended.</p>
+
+      <h3>Top Used Words</h3>
+      <p id="words"></p>
+      <h4>Tips</h4>
+      <p>Certain words will probably appear multiple times per page--especially articles and pronouns--but, pay attention if:</p>
+      <ul>
+        <li>You see verbs such as 'is' and 'was' more than once a page because it suggests passive voice and weak verbs</li>
+        <li>You find words like 'just,' 'that,' 'still,' 'begin,' and 'start'--these are filler words to cull</li>
+        <li>You see verbs used repeatedly where you could employ synonyms</li>
+      </ul>
+      <p>Consider using the 'Control F' function to highlight these words in your text to check if:</p>
+      <ul>
+        <li>Any word appears multiple times in a single sentence</li>
+        <li>A noun, adjective, or verb appears multiple times in a single paragraph or page</li>
+        <li>Can you rephrase sentences to avoid repeating the same word?</li>
+      </ul>
+    </div>
   </div>
 
   <script>
