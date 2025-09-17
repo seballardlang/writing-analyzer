@@ -12,12 +12,36 @@
     }
     .main-card {
       background: #fff;
-      max-width: 700px;
+      max-width: 950px;
       margin: 40px auto 32px auto;
-      padding: 36px 32px 32px 32px;
+      padding: 36px 18px 32px 18px;
       border-radius: 18px;
       box-shadow: 0 4px 24px rgba(60,40,20,0.10), 0 1.5px 4px rgba(60,40,20,0.04);
       border: 1px solid #e0e6ed;
+    }
+    .header-bar {
+      width: 100%;
+      background: #111;
+      color: #fff;
+      padding: 0;
+      margin: 0 0 24px 0;
+      height: 54px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    .header-bar a {
+      color: #fff;
+      text-decoration: none;
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-size: 1.25em;
+      font-weight: 700;
+      margin-left: 32px;
+      letter-spacing: 0.04em;
+      transition: color 0.2s;
+    }
+    .header-bar a:hover {
+      color: #ff7a00;
     }
     h2, h3, h4 {
       font-family: 'Montserrat', Arial, sans-serif;
@@ -106,6 +130,10 @@
   </style>
 </head>
 <body>
+
+  <div class="header-bar">
+    <a href="https://www.theciviccompass.com" target="_blank">THE CIVIC COMPASS</a>
+  </div>
 
   <!-- Google API client library -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
