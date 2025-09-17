@@ -29,10 +29,6 @@
   </ul>
   <p>Note: No data is stored or shared; all processing occurs in your browser.</p>
 
-  <h3>Google Authentication</h3>
-  <button id="googleSignIn" onclick="handleGoogleSignIn()">Sign in with Google</button>
-  <div id="authStatus"></div>
-
   <h2>Writing Analyzer</h2>
   <textarea id="inputText" placeholder="Paste your writing here..."></textarea><br><br>
   <button onclick="analyze()">Analyze</button>
@@ -41,6 +37,11 @@
   <input type="file" id="docxInput" accept=".docx" />
   <button onclick="handleDocxUpload()">Upload .docx</button>
   <br><br>
+  
+  <h3>Google Authentication</h3>
+  <button id="googleSignIn" onclick="handleGoogleSignIn()">Sign in with Google</button>
+  <div id="authStatus"></div>
+  
   <h3>Or enter a Google Doc link</h3>
   <input type="text" id="gdocUrl" placeholder="Paste Google Doc URL here" size="50" />
   <button onclick="handleGoogleDoc()">Submit Google Doc</button>
