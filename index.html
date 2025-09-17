@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <style>
+    #resultsSection { display: none; }
+  </style>
   <!-- Add mammoth.js for .docx processing -->
   <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
   <title>Writing Analyzer</title>
@@ -10,9 +13,22 @@
   </style>
 </head>
 <body>
+
   <!-- Google API client library -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://apis.google.com/js/api.js"></script>
+
+  <h2>Instructions</h2>
+  <p>Upload your manuscript using either a .docx file or GoogleDocs below.</p>
+  <ul>
+  <li>For GoogleDocs, you will need to sign in with your Google account and authorize access to your documents.</li>
+  <li>Once signed in, paste the link to your GoogleDoc in the field provided and click "Submit Google Doc."</li>
+  <li>For docx files, click "Upload .docx" after selecting your file.</li>
+  <li>Your text will appear in the text area above for analysis.</li>
+  <li>Click "Analyze" to see readability scores and top used words.</li>
+  </ul>
+  <p>Note: No data is stored or shared; all processing occurs in your browser.</p>
+
   <h3>Google Authentication</h3>
   <button id="googleSignIn" onclick="handleGoogleSignIn()">Sign in with Google</button>
   <div id="authStatus"></div>
@@ -31,9 +47,33 @@
   <br><br>
   <div id="output"></div>
 
-  <h3>Results</h3>
-  <p id="grade"></p>
-  <p id="words"></p>
+  <div id="resultsSection">
+    <h2>Results</h2>
+    <h3>Readability</h3>
+    <p id="grade"></p>
+    <h4>Flesch-Kincaid Grade Level</h4>
+    <p>Assesses the approximate reading grade level of a text, based on average sentence length and word complexity.</p>
+    <h4>Coleman-Liau Index</h4>
+    <p>An alternative formula that focuses on word length to assess grade level.</p>
+    <h4>Tips</h4>
+    <p>Aim for a grade level appropriate to your audience. For general audiences, a grade level of 7-8 is often recommended.</p>
+
+    <h3>Top Used Words</h3>
+    <p id="words"></p>
+    <h4>Tips</h4>
+    <p>Certain words will probably appear multiple times per page--especially articles and pronouns--but, pay attention if:</p>
+    <ul>
+      <li>You see verbs such as 'is' and 'was' more than once a page because it suggests passive voice and weak verbs</li>
+      <li>You find words like 'just,' 'that,' 'still,' 'begin,' and 'start'--these are filler words to cull</li>
+      <li>You see verbs used repeatedly where you could employ synonyms</li>
+    </ul>
+    <p>Consider using the 'Control F' function to highlight these words in your text to check if:</p>
+    <ul>
+      <li>Any word appears multiple times in a single sentence</li>
+      <li>A noun, adjective, or verb appears multiple times in a single paragraph or page</li>
+      <li>Can you rephrase sentences to avoid repeating the same word?</li>
+    </ul>
+  </div>
 
   <script>
     // Google API config
@@ -101,6 +141,8 @@
       tokenClient.requestAccessToken({prompt: 'consent'});
     }
     function analyze() {
+  // Show the results section
+  document.getElementById('resultsSection').style.display = 'block';
       const text = document.getElementById("inputText").value;
 
       // Basic word count
@@ -108,16 +150,54 @@
       const freq = {};
       words.forEach(w => freq[w] = (freq[w] || 0) + 1);
 
-      // Sort by frequency
-      const topWords = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  // Sort by frequency and get top 50
+  const topWords = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 50);
 
-      // Simple grade level (Flesch-Kincaid simplified)
-      const sentences = text.split(/[.!?]/).filter(s => s.trim().length > 0).length;
-      const syllables = text.split(/[aeiouy]+/i).length - 1; // crude estimate
-      const grade = 0.39 * (words.length / sentences) + 11.8 * (syllables / words.length) - 15.59;
+      // Flesch-Kincaid Grade Level
+      function countSyllables(word) {
+        word = word.toLowerCase();
+        if(word.length <= 3) { return 1; }
+        word = word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '');
+        word = word.replace(/^y/, '');
+        const matches = word.match(/[aeiouy]{1,2}/g);
+        return matches ? matches.length : 1;
+      }
+      const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0).length;
+      const wordsArr = text.match(/\b\w+\b/g) || [];
+      const syllableCount = wordsArr.reduce((acc, w) => acc + countSyllables(w), 0);
+      // Flesch-Kincaid Grade Level formula
+      // 0.39 * (words/sentences) + 11.8 * (syllables/words) - 15.59
+      const fkGrade = sentences > 0 && wordsArr.length > 0
+        ? 0.39 * (wordsArr.length / sentences) + 11.8 * (syllableCount / wordsArr.length) - 15.59
+        : 0;
 
-      document.getElementById("grade").innerText = `Approx. Grade Level: ${grade.toFixed(1)}`;
-      document.getElementById("words").innerText = "Most used words: " + topWords.map(w => `${w[0]} (${w[1]})`).join(", ");
+      // Coleman-Liau Index
+      // L = average number of letters per 100 words
+      // S = average number of sentences per 100 words
+      // CLI = 0.0588 * L - 0.296 * S - 15.8
+      let letterCount = 0;
+      wordsArr.forEach(w => {
+        letterCount += w.replace(/[^a-zA-Z]/g, '').length;
+      });
+      const wordCount = wordsArr.length;
+      const L = wordCount > 0 ? (letterCount / wordCount) * 100 : 0;
+      const S = wordCount > 0 ? (sentences / wordCount) * 100 : 0;
+      const cli = wordCount > 0 ? 0.0588 * L - 0.296 * S - 15.8 : 0;
+
+      document.getElementById("grade").innerText = `Flesch-Kincaid: ${fkGrade.toFixed(1)} | Coleman-Liau: ${cli.toFixed(1)}`;
+
+      // Table of top 50 words with average per 250 words
+      let tableHtml = '<table style="border-collapse:collapse;margin-top:10px;width:100%"><thead><tr>' +
+        '<th style="border-bottom:1px solid #bfa77a;text-align:left;padding:4px 8px;">Word</th>' +
+        '<th style="border-bottom:1px solid #bfa77a;text-align:right;padding:4px 8px;">Count</th>' +
+        '<th style="border-bottom:1px solid #bfa77a;text-align:right;padding:4px 8px;">Avg per 250 words</th>' +
+        '</tr></thead><tbody>';
+      topWords.forEach(([word, count]) => {
+        const avg = wordCount > 0 ? (count / wordCount) * 250 : 0;
+        tableHtml += `<tr><td style="padding:4px 8px;">${word}</td><td style="text-align:right;padding:4px 8px;">${count}</td><td style="text-align:right;padding:4px 8px;">${avg.toFixed(2)}</td></tr>`;
+      });
+      tableHtml += '</tbody></table>';
+      document.getElementById("words").innerHTML = tableHtml;
     }
 
     function handleDocxUpload() {
