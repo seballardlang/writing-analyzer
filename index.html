@@ -145,15 +145,16 @@
     <ul>
       <li>For GoogleDocs, you will need to sign in with your Google account and authorize access to your documents.</li>
       <li>Once signed in, paste the link to your GoogleDoc in the field provided and click "Submit Google Doc."</li>
-      <li>For docx files, click "Upload .docx" after selecting your file.</li>
+      <li>For .docx files, click "Upload .docx" after selecting your file.</li>
       <li>Your text will appear in the text area above for analysis.</li>
       <li>Click "Analyze" to see readability scores and top used words.</li>
+      <li>Scroll down to see detailed results and tips for improving your writing.</li>
     </ul>
     <p>Note: No data is stored or shared; all processing occurs in your browser.</p>
 
     <h2>Writing Analyzer</h2>
     <textarea id="inputText" placeholder="Paste your writing here..."></textarea><br><br>
-    <button onclick="analyze()">Analyze</button>
+    <button onclick="analyze()">Analyze</button><p>Scroll below for results!</p>
 
     <h3>Or upload a .docx file</h3>
     <input type="file" id="docxInput" accept=".docx" />
@@ -161,10 +162,12 @@
     <br><br>
 
     <h3>Google Authentication</h3>
+    <h4>Sign-in will require several permissions and warnings. To skip these, use the .docx upload or cut/paste your text directly into the field above!</h4>
     <button id="googleSignIn" onclick="handleGoogleSignIn()">Sign in with Google</button>
     <div id="authStatus"></div>
 
-    <h3>Or enter a Google Doc link</h3>
+    <h3>Or enter a GoogleDoc link</h3>
+    <h4>Warning! GoogleDocs can be SUPER fussy and will only import documents you created within its platform and that you authorize sharing to. If you encounter an error, copy the text from your GoogleDoc and manually paste it into the text field above.</h4>
     <input type="text" id="gdocUrl" placeholder="Paste Google Doc URL here" size="50" />
     <button onclick="handleGoogleDoc()">Submit Google Doc</button>
     <br><br>
@@ -180,11 +183,13 @@
       <p>An alternative formula that focuses on word length to assess grade level.</p>
       <h4>Tips</h4>
       <p>Aim for a grade level appropriate to your audience. For general audiences, a grade level of 7-8 is often recommended.</p>
-      <ul> If you want to increase your grade level for more complexity:
+      <p>If you want to increase your grade level for more complexity:</p>
+      <ul> 
         <li>Look to level-up your vocabulary with more precise synonyms</li>
         <li>Employ more complex and varied sentence structures with dependent clauses like "if-then" constructions</li>
       </ul>
-      <ul> If you want to decrease your grade level for more accessibility:
+     <p>If you want to decrease your grade level for more accessibility:</p>
+      <ul> 
         <li>Simplify any overly long and technical vocabulary</li>
         <li>Look for run-on sentences and break them up</li>
       </ul>
