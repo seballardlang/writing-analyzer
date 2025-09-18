@@ -2,6 +2,7 @@
 <html>
 <head>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  // Grab CSS specs from WordPress to match author website
   <style>
     body {
       background: #f4f7fa;
@@ -121,6 +122,7 @@
       border: none;
     }
   </style>
+  // Get help from VSCode CoPilot to integrate Mammoth
   <!-- Add mammoth.js for .docx processing -->
   <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
   <title>Writing Analyzer</title>
@@ -135,11 +137,13 @@
     <a href="https://www.theciviccompass.com" target="_blank">THE CIVIC COMPASS</a>
   </div>
 
+  // Get help from VSCode CoPilot to integrate Google API
   <!-- Google API client library -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://apis.google.com/js/api.js"></script>
 
   <div class="main-card">
+   // Write Instructions
     <h2>Instructions</h2>
     <p>Upload your manuscript using either a .docx file or GoogleDocs below.</p>
     <ul>
@@ -152,15 +156,18 @@
     </ul>
     <p>Note: No data is stored or shared; all processing occurs in your browser.</p>
 
+    // Text field submission option
     <h2>Writing Analyzer</h2>
     <textarea id="inputText" placeholder="Paste your writing here..."></textarea><br><br>
     <button onclick="analyze()">Analyze</button><p>Scroll below for results!</p>
 
+    // .docx submission option 
     <h3>Or upload a .docx file</h3>
     <input type="file" id="docxInput" accept=".docx" />
     <button onclick="handleDocxUpload()">Upload .docx</button>
     <br><br>
 
+    //  GoogleDocs submission option with help from VSCode CoPilot
     <h3>Google Authentication</h3>
     <h4>Sign-in will require several permissions and warnings. To skip these, use the .docx upload or cut/paste your text directly into the field above!</h4>
     <button id="googleSignIn" onclick="handleGoogleSignIn()">Sign in with Google</button>
@@ -173,6 +180,7 @@
     <br><br>
     <div id="output"></div>
 
+    // Results section that appears post analysis
     <div id="resultsSection">
       <h2>Results</h2>
       <h3>Readability</h3>
@@ -212,6 +220,7 @@
     </div>
   </div>
 
+  // Java to handle Google Integration with VSCode CoPilot help
   <script>
     // Google API config
     const CLIENT_ID = '709067795013-ij09egf2e0a12d1467mvhi5a35fbdi8i.apps.googleusercontent.com'; 
@@ -278,6 +287,7 @@
       tokenClient.requestAccessToken({prompt: 'consent'});
     }
     function analyze() {
+  
   // Show the results section
   document.getElementById('resultsSection').style.display = 'block';
       const text = document.getElementById("inputText").value;
@@ -302,6 +312,7 @@
       const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0).length;
       const wordsArr = text.match(/\b\w+\b/g) || [];
       const syllableCount = wordsArr.reduce((acc, w) => acc + countSyllables(w), 0);
+      
       // Flesch-Kincaid Grade Level formula
       // 0.39 * (words/sentences) + 11.8 * (syllables/words) - 15.59
       const fkGrade = sentences > 0 && wordsArr.length > 0
@@ -337,6 +348,7 @@
       document.getElementById("words").innerHTML = tableHtml;
     }
 
+    // Funtion to upload .docx with VSCode CoPilot help
     function handleDocxUpload() {
       const input = document.getElementById('docxInput');
       const file = input.files[0];
