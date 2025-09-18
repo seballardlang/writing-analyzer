@@ -2,7 +2,7 @@
 <html>
 <head>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-  // Grab CSS specs from WordPress to match author website
+  <!-- Grab CSS specs from WordPress to match author website -->
   <style>
     body {
       background: #f4f7fa;
@@ -122,7 +122,7 @@
       border: none;
     }
   </style>
-  // Get help from VSCode CoPilot to integrate Mammoth
+  <!-- Get help from VSCode CoPilot to integrate Mammoth -->
   <!-- Add mammoth.js for .docx processing -->
   <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
   <title>Writing Analyzer</title>
@@ -137,13 +137,13 @@
     <a href="https://www.theciviccompass.com" target="_blank">THE CIVIC COMPASS</a>
   </div>
 
-  // Get help from VSCode CoPilot to integrate Google API
+  <!-- Get help from VSCode CoPilot to integrate Google API -->
   <!-- Google API client library -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://apis.google.com/js/api.js"></script>
 
   <div class="main-card">
-   // Write Instructions
+   <!-- Write Instructions -->
     <h2>Instructions</h2>
     <p>Upload your manuscript using either a .docx file or GoogleDocs below.</p>
     <ul>
@@ -156,18 +156,18 @@
     </ul>
     <p>Note: No data is stored or shared; all processing occurs in your browser.</p>
 
-    // Text field submission option
+    <!-- Text field submission option -->
     <h2>Writing Analyzer</h2>
     <textarea id="inputText" placeholder="Paste your writing here..."></textarea><br><br>
     <button onclick="analyze()">Analyze</button><p>Scroll below for results!</p>
 
-    // .docx submission option 
+    <!-- .docx submission option -->
     <h3>Or upload a .docx file</h3>
     <input type="file" id="docxInput" accept=".docx" />
     <button onclick="handleDocxUpload()">Upload .docx</button>
     <br><br>
 
-    //  GoogleDocs submission option with help from VSCode CoPilot
+    <!--  GoogleDocs submission option with help from VSCode CoPilot -->
     <h3>Google Authentication</h3>
     <h4>Sign-in will require several permissions and warnings. To skip these, use the .docx upload or cut/paste your text directly into the field above!</h4>
     <button id="googleSignIn" onclick="handleGoogleSignIn()">Sign in with Google</button>
@@ -180,7 +180,7 @@
     <br><br>
     <div id="output"></div>
 
-    // Results section that appears post analysis
+    <!-- Results section that appears post analysis -->
     <div id="resultsSection">
       <h2>Results</h2>
       <h3>Readability</h3>
